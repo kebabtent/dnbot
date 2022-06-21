@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use common::discord::client::{ButtonComponent, RowComponent};
 use common::discord::interaction::CanRespond;
 use common::discord::types::{
@@ -6,7 +6,7 @@ use common::discord::types::{
 };
 use common::discord::Client;
 use common::{EventHandler, Guild, Storage};
-use log::{debug, info, warn};
+use log::{info, warn};
 use metrohash::MetroHash64;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

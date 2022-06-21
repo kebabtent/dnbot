@@ -1,31 +1,29 @@
 use anyhow::Result;
 use async_fuse::Fuse;
 use chrono::{DateTime, Utc};
+use common::discord::types::ChannelId;
 use common::discord::types::Embed;
-use common::discord::types::{ChannelId, Color, GuildId, UserId};
 use common::discord::voice::source::ffmpeg_stream;
-use common::discord::voice::{Controller, Event, Listener, Player, Updater};
+use common::discord::voice::{Controller, Event, Listener, Updater};
 use common::discord::Client;
 use common::{Guild, HasUpdater, VoiceEventHandler};
-use futures::channel::mpsc;
-use futures::channel::oneshot::Receiver;
+// use futures::channel::mpsc;
 use futures::StreamExt;
 use log::{debug, info, warn};
 use serde::Deserialize;
-use std::convert::TryFrom;
 use std::pin::Pin;
 use std::time::Duration;
 use tokio::select;
 use tokio::task::JoinHandle;
 use tokio::time::sleep;
 
-type EventSend = mpsc::Sender<()>;
-type EventRecv = mpsc::Receiver<()>;
+// type EventSend = mpsc::Sender<()>;
+// type EventRecv = mpsc::Receiver<()>;
 type Sleep = Pin<Box<tokio::time::Sleep>>;
 
 pub struct Radio {
 	updater: Updater,
-	event_send: EventSend,
+	// event_send: EventSend,
 }
 
 impl Radio {
@@ -36,15 +34,15 @@ impl Radio {
 		bitrate: u32,
 	) -> Result<Self> {
 		let (updater, controller, listener) = guild.create_player();
-		let (event_send, event_recv) = mpsc::channel(16);
+		// let (event_send, event_recv) = mpsc::channel(16);
 
 		let host = Host {
-			guild_id: guild.id(),
+			// guild_id: guild.id(),
 			channel_id: broadcast,
-			client: guild.client(),
+			// client: guild.client(),
 			controller,
 			listener,
-			event_recv,
+			// event_recv,
 			try_connect: Fuse::empty(),
 			try_play: Fuse::empty(),
 			connected: false,
@@ -58,7 +56,7 @@ impl Radio {
 
 		Ok(Self {
 			updater,
-			event_send,
+			// event_send,
 		})
 	}
 }
@@ -72,12 +70,12 @@ impl HasUpdater for Radio {
 impl VoiceEventHandler for Radio {}
 
 struct Host {
-	guild_id: GuildId,
+	// guild_id: GuildId,
 	channel_id: ChannelId,
-	client: Client,
+	// client: Client,
 	controller: Controller,
 	listener: Listener,
-	event_recv: EventRecv,
+	// event_recv: EventRecv,
 	try_connect: Fuse<Sleep>,
 	try_play: Fuse<Sleep>,
 	connected: bool,
@@ -276,7 +274,7 @@ impl Announcer {
 		}
 
 		// Announce
-		let mut embed = Embed::new()
+		let embed = Embed::new()
 			.title("Now playing")
 			.url("https://goatshedmusic.com/player/")
 			.description(current.title.clone())

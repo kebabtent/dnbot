@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+// use chrono::{DateTime, Utc};
 use common::discord;
 use common::discord::types::ChannelId;
 use common::discord::Client;
@@ -472,7 +472,7 @@ pub enum PubError {
 	InvalidXml,
 	MissingChild(&'static str),
 	MissingChildInner(&'static str),
-	InvalidDateTime,
+	// InvalidDateTime,
 }
 
 #[derive(Debug)]
@@ -480,8 +480,8 @@ pub struct Publication {
 	title: String,
 	yt_id: YoutubeId,
 	yt_channel: YoutubeChannel,
-	published: DateTime<Utc>,
-	updated: DateTime<Utc>,
+	// published: DateTime<Utc>,
+	// updated: DateTime<Utc>,
 }
 
 impl FromStr for Publication {
@@ -497,20 +497,20 @@ impl FromStr for Publication {
 		let yt_id = entry_text(entry, "videoId", YT_NS)?.into();
 		let yt_channel = entry_text(entry, "channelId", YT_NS)?.into();
 
-		let published = DateTime::parse_from_rfc3339(entry_text(entry, "published", BASE_NS)?)
+		/*let published = DateTime::parse_from_rfc3339(entry_text(entry, "published", BASE_NS)?)
 			.map_err(|_| PubError::InvalidDateTime)?
 			.with_timezone(&Utc);
 
 		let updated = DateTime::parse_from_rfc3339(entry_text(entry, "updated", BASE_NS)?)
 			.map_err(|_| PubError::InvalidDateTime)?
-			.with_timezone(&Utc);
+			.with_timezone(&Utc);*/
 
 		Ok(Publication {
 			title,
 			yt_id,
 			yt_channel,
-			published,
-			updated,
+			// published,
+			// updated,
 		})
 	}
 }

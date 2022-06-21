@@ -3,24 +3,20 @@ use anyhow::{anyhow, ensure, Result};
 use common::discord::client::ButtonComponent;
 use common::discord::types::{ChannelId, DateTime, GuildId, RoleId, UserId};
 use common::discord::Client;
-use common::{EventHandler, Guild, Storage, StorageKind};
+use common::{EventHandler, Guild, Storage};
 use futures::channel::{mpsc, oneshot};
 use futures::{SinkExt, StreamExt};
-use http::Response;
 use http::{Method, StatusCode};
 use log::{debug, info, warn};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use sqlx::{query, query_scalar, Row};
+use sqlx::{query, query_scalar};
 use std::convert::Infallible;
 use std::mem;
 use std::net::{IpAddr, SocketAddr};
 use std::ops::DerefMut;
 use std::sync::{Arc, Mutex};
-use std::time::UNIX_EPOCH;
-use warp::filters::BoxedFilter;
-use warp::hyper::Body;
-use warp::{Filter, Reply};
+use warp::Filter;
 
 type SharedConfig = Arc<Mutex<AstronautsConfig>>;
 

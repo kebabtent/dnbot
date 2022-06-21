@@ -1,6 +1,5 @@
 use common::discord::types::{ChannelId, GuildId};
 use serde::Deserialize;
-use std::path::PathBuf;
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct Config {

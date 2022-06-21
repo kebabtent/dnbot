@@ -5,16 +5,14 @@ use common::EventHandler;
 use config::Config;
 use futures::channel::mpsc;
 use futures::SinkExt;
-use futures::{FutureExt, StreamExt};
+use futures::StreamExt;
 use log::{info, warn, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Config as LogConfig, Logger, Root};
 use log4rs::encode::pattern::PatternEncoder;
-use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::signal;
-use warp::Filter;
 
 mod config;
 mod radio;

@@ -1,0 +1,20 @@
+[package]
+name = "common"
+version = "0.1.0"
+authors = ["kebabtent <kebabtent@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0"
+base64 = "0.13"
+chrono = "0.4"
+#discord = { path = "../../discord-async", package = "discord-async", features = ["sqlx", "voice"] }
+discord = { git = "https://github.com/kebabtent/discord-async-rs", package = "discord-async", features = ["sqlx", "voice"] }
+futures = "0.3"
+log = "0.4"
+reqwest = { version = "0.11", features = ["rustls-tls"] }
+rspotify-model = { git = "https://github.com/ramsayleung/rspotify", branch = "master" }
+#rspotify = { git = "https://github.com/ramsayleung/rspotify", branch = "master", default-features = false, features = ["client-reqwest", "reqwest-rustls-tls"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sqlx = { version = "0.5", default-features = false, features = ["runtime-tokio-rustls", "json", "any", "postgres", "sqlite"] }

@@ -1,0 +1,13 @@
+[package]
+name = "voice"
+version = "0.1.0"
+authors = ["kebabtent <kebabtent@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+futures = "0.3"
+pin-project = "0.4"
+tokio = { version = "1", features = ["full"] }
+tokio-util = { version = "0.6", features = ["codec"] }
+
+common = { path = "../common" }

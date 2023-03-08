@@ -203,7 +203,7 @@ impl Shuttle {
 			if let Some((channel_id, text, button)) = announce {
 				let mut msg = self.client.create_message(channel_id).content(text);
 				if let Some(button) = button {
-					msg = msg.component_row(button.into());
+					msg = msg.component_row(button);
 				}
 
 				msg.send().await?;

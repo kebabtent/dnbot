@@ -1,8 +1,7 @@
 use anyhow::Result;
 use async_fuse::Fuse;
 use chrono::{DateTime, Utc};
-use common::discord::types::ChannelId;
-use common::discord::types::Embed;
+use common::discord::types::{ChannelId, Embed};
 use common::discord::voice::source::ffmpeg_stream;
 use common::discord::voice::{Controller, Event, Listener, Updater};
 use common::discord::Client;

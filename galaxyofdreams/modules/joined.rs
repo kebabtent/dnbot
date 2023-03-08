@@ -1,7 +1,9 @@
+use chrono::Utc;
+use chronoutil::{shift_months, shift_years};
 use common::discord::interaction::*;
 use common::discord::types::{
-	AllowedMentions, ApplicationCommandOption, ApplicationCommandOptionType, ChannelId, DateTime,
-	Event, UserId,
+	AllowedMentions, ApplicationCommandOption, ApplicationCommandOptionType, ChannelId, Event,
+	UserId,
 };
 use common::display::MaybeDisplay;
 use common::{EventHandler, Guild};
@@ -12,6 +14,8 @@ use std::collections::HashSet;
 use std::str::FromStr;
 use std::time::Instant;
 use std::{fmt, mem};
+
+type DateTime = chrono::DateTime<chrono::Utc>;
 
 const COMMAND_NAME: &'static str = "joined";
 const USER_OPTION_NAME: &'static str = "user";
@@ -159,11 +163,10 @@ impl Joined {
 
 		match guild.member(user_id) {
 			Some(member) => {
+				let ts = member.joined_at.timestamp();
 				let content = format!(
-					"<@{}> joined **{}** ({})",
-					user_id,
-					ReadableDuration::new(&member.joined_at),
-					member.joined_at.format("%d-%m-%Y %H:%M:%S")
+					"<@{user_id}> joined **{}** (<t:{ts}:d> <t:{ts}:T>)",
+					member.joined_at.readable(),
 				);
 				interaction
 					.respond(guild)
@@ -211,43 +214,115 @@ impl EventHandler for Joined {
 	}
 }
 
-struct ReadableDuration<'a>(&'a DateTime);
+struct ReadableDuration(DateTime, DateTime);
 
-impl<'a> ReadableDuration<'a> {
-	pub fn new(date_time: &'a DateTime) -> Self {
-		Self(date_time)
+impl ReadableDuration {
+	pub fn new(date_time: DateTime) -> Self {
+		Self(date_time, Utc::now())
+	}
+
+	#[cfg(test)]
+	fn set_now(mut self, now: DateTime) -> Self {
+		self.1 = now;
+		self
 	}
 }
 
-const PART_COUNT: usize = 7;
-const PART_NAMES: [&str; 7] = ["year", "month", "week", "day", "hour", "minute", "second"];
-const PART_SIZES: [u64; 7] = [31_557_600, 2_630_016, 604_800, 86_400, 3_600, 60, 1];
-// 1y=365.25d 1mo=30.44d
+trait MakeReadableDuration {
+	fn readable(&self) -> ReadableDuration;
+}
 
-impl fmt::Display for ReadableDuration<'_> {
+impl MakeReadableDuration for DateTime {
+	fn readable(&self) -> ReadableDuration {
+		ReadableDuration::new(*self)
+	}
+}
+
+impl MakeReadableDuration for common::discord::types::DateTime {
+	fn readable(&self) -> ReadableDuration {
+		ReadableDuration::new(self.clone().into_inner())
+	}
+}
+
+const PART_COUNT: usize = 5;
+const PART_NAMES: [&str; PART_COUNT] = ["week", "day", "hour", "minute", "second"];
+const PART_SIZES: [u64; PART_COUNT] = [604_800, 86_400, 3_600, 60, 1];
+
+impl fmt::Display for ReadableDuration {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		let secs = DateTime::now().timestamp() - self.0.timestamp();
-		let past = secs > 0;
-		let mut secs = secs.abs() as u64;
-		let mut displayed = 0;
-		if secs == 0 {
+		let mut n = 0;
+		let mut dt = self.0;
+		let mut now = self.1;
+
+		if dt == now {
 			return write!(f, "right now");
 		}
+
+		let past = if now > dt {
+			true
+		} else {
+			mem::swap(&mut dt, &mut now);
+			false
+		};
+		let mut sh;
+
+		// O(y+m) but yolo
+		let mut y = 0;
+		loop {
+			sh = shift_years(dt, 1);
+			if sh > now {
+				break;
+			}
+			dt = sh;
+			y += 1;
+		}
+
+		if y > 0 {
+			n += 1;
+			write!(f, "{y} year")?;
+			if y > 1 {
+				write!(f, "s")?;
+			}
+		}
+
+		let mut m = 0;
+		loop {
+			sh = shift_months(dt, 1);
+			if sh > now {
+				break;
+			}
+			dt = sh;
+			m += 1;
+		}
+
+		if m > 0 {
+			if n > 0 {
+				write!(f, " ")?;
+			}
+			n += 1;
+			write!(f, "{m} month")?;
+			if m > 1 {
+				write!(f, "s")?;
+			}
+		}
+
+		let secs = now.timestamp() - dt.timestamp();
+		let mut secs = secs as u64;
 		for i in 0..PART_COUNT {
 			let amount = secs / PART_SIZES[i];
 			if amount > 0 {
-				if displayed > 0 {
+				if n > 0 {
 					write!(f, " ")?;
 				}
 				write!(f, "{} {}", amount, PART_NAMES[i])?;
 				if amount != 1 {
 					write!(f, "s")?;
 				}
-				displayed += 1;
+				n += 1;
 			}
 
 			// Display up to 4 components
-			if displayed == 4 {
+			if n == 4 {
 				break;
 			}
 			secs %= PART_SIZES[i];
@@ -257,6 +332,30 @@ impl fmt::Display for ReadableDuration<'_> {
 			write!(f, " ago")
 		} else {
 			write!(f, " from now")
+		}
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::DateTime;
+	use crate::modules::joined::MakeReadableDuration;
+	use chrono::{NaiveDateTime, Utc};
+
+	#[test]
+	fn readable_duration() {
+		let now = DateTime::from_utc(
+			NaiveDateTime::from_timestamp_opt(1678278264, 0).unwrap(),
+			Utc,
+		);
+		let ts = [1457370320, 1458431838];
+		let d = [
+			"7 years 19 hours 19 minutes 4 seconds ago",
+			"6 years 11 months 2 weeks 2 days ago",
+		];
+		for (ts, d) in ts.into_iter().zip(d.into_iter()) {
+			let dt = DateTime::from_utc(NaiveDateTime::from_timestamp_opt(ts, 0).unwrap(), Utc);
+			assert_eq!(format!("{}", dt.readable().set_now(now)), d);
 		}
 	}
 }

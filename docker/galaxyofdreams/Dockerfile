@@ -1,4 +1,4 @@
-FROM rust:1.56-buster as builder
+FROM rust:1.67-buster as builder
 
 WORKDIR /opt/galaxyofdreams
 COPY Cargo.toml Cargo.lock ./

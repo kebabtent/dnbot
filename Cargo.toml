@@ -19,7 +19,7 @@ path = "goatshed/main.rs"
 anyhow = "1.0"
 async-fuse = "0.11"
 async-stream = "0.3"
-base64 = "0.13"
+base64 = "0.21"
 chrono = { version = "0.4", features = ["serde"] }
 chronoutil = "0.2"
 dotenv = "0.15"
@@ -29,18 +29,18 @@ futures = "0.3"
 hotwatch = "0.4"
 http = "0.2"
 log = "0.4"
-log4rs = "0.12"
+log4rs = "1.2"
 metrohash = "1.0"
-minidom = "0.12"
-reqwest = { version = "0.11", features = ["rustls-tls"] }
+minidom = "0.15"
+reqwest = { version = "0.11", default-features = false, features = ["rustls-tls"] }
 rspotify-model = { git = "https://github.com/ramsayleung/rspotify", branch = "master" }
 #rspotify = { git = "https://github.com/ramsayleung/rspotify", branch = "master", default-features = false, features = ["client-reqwest", "reqwest-rustls-tls"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-sqlx = { version = "0.5", default-features = false, features = ["runtime-tokio-rustls", "json", "any", "postgres", "sqlite"] }
+sqlx = { version = "0.6", default-features = false, features = ["runtime-tokio-rustls", "json", "any", "postgres", "sqlite"] }
 tokio = { version = "1", features = ["full"] }
 tokio-stream = "0.1"
-toml = "0.5"
+toml = "0.7"
 warp = "0.3"
 
 common = { path = "common" }

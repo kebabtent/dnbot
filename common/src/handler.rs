@@ -71,7 +71,7 @@ where
 
 	fn guild_online(&mut self, guild: &Guild) {
 		self.a.guild_online(guild);
-		self.a.guild_online(guild);
+		self.b.guild_online(guild);
 	}
 
 	fn guild_offline(&mut self, guild: &Guild) {
